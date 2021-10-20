@@ -23,4 +23,7 @@ jobs:
       
       - name: Scan project repository
         run: |
-          trivy fs .
+          cd app/
+          docker build -t hadronp/ubuntu-flask:dev-${GITHUB_SHA::7} .
+          trivy image --severity=MEDIUM,HIGH,CRITICAL hadronp/ubuntu-flask:dev-${GITHUB_SHA::7}
+
