@@ -51,5 +51,5 @@ jobs:
           docker image ls
           docker run --detach --publish 5000:5000 registry-intl.ap-southeast-1.aliyuncs.com/fatman-collider/fylax:$IMAGE_TAG
           docker ps
-          curl localhost:5000
+          curl http://0.0.0.0:5000
 
