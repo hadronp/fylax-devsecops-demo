@@ -1,0 +1,26 @@
+name: Deploy to Develop
+on:
+  push:
+    branches:
+      - develop
+      - feature/*
+  workflow_dispatch:
+
+jobs:
+  trivyscan:
+    name: Run Trivy vulnerability scanner
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Install Trivy
+        run: |
+          sudo apt install rpm -y
+          wget https://github.com/aquasecurity/trivy/releases/download/v0.19.2/trivy_0.19.2_Linux-64bit.deb
+          sudo dpkg -i trivy_0.19.2_Linux-64bit.deb
+          trivy -v
+      
+      - name: Scan project repository
+        run: |
+          trivy fs .
