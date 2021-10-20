@@ -37,7 +37,7 @@ jobs:
       
       - name: Build and push image
         env:
-          IMAGE_TAG: ${{ github.sha }}
+          IMAGE_TAG: ${{ github.sha::7 }}
         run: |
           cd app/
           docker build -t registry-intl.ap-southeast-1.aliyuncs.com/fatman-collider/fylax:$IMAGE_TAG .
