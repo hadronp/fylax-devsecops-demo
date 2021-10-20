@@ -1,0 +1,401 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<title>DevSecOps- Container Vulnerability Scanners</title>
+
+		<link rel="stylesheet" href="dist/reset.css">
+		<link rel="stylesheet" href="dist/reveal.css">
+		<link rel="stylesheet" href="dist/theme/night.css">
+
+		<!-- Theme used for syntax highlighted code -->
+		<link rel="stylesheet" href="plugin/highlight/monokai.css">
+	</head>
+	<body>
+		<div class="reveal">
+			<div class="slides">
+				<section>
+					<h3>Immutable Deployments and Infrastucture-as-Code</strong></h3>
+					<p><small> Deploying and scaling an impossibly awesome Flask App with Docker Swarm </small><p>
+					<p>
+						<small><a href="https://www.facebook.com/aryan.limjap">Aryan Lowell C. Limjap</a> / <a href="http://twitter.com/hadron_particle">@hadron_particle</a></small>
+					</p>
+				</section>
+
+				<section>
+					<h3>whoami</h3>
+					<h4>
+						"Aryan of House Hackm3, The First of his name, The Unpatched, Hoarder of Rainbow Tables, Cracker of Firewalls, Protector of Networks, Servers and Containers, Khal of Nothing, Domesticator of Trolls, Breaker of Chairs"
+					</h4>
+				</section>
+		
+				<section>
+					<h3>whoami 2.0</h3>
+					<section>
+						<ul>
+							<li class="fragment">
+								<h5> 
+									previously a Network Engineer at Capitol University
+								</h5>
+							</li>
+							
+							<li class="fragment">
+								<h5>
+									currently DevOps Systems Administrator at Innovuze Solutions Inc.
+								</h5>
+							</li>
+
+							<li class="fragment">
+								<h5>
+									perpetual n00b and tinkerer of technology
+								</h5>
+							</li>
+
+							<li class="fragment">
+								<h5>
+									FOSS advocate
+								</h5>
+							</li>
+
+							<li class="fragment">
+								<h5>
+									... obviously a Game of Thrones fan.
+								</h5>
+							</li>
+							
+							<li class="fragment">
+								<h5>
+									... an audio bookworm (HP, GoT, LoTr, WoT)
+								</h5>
+							</li>
+						</ul>
+					</section>
+				</section>
+
+				<section>
+					<h3>Scope of this presentation</h3>
+					<ul>
+						<li class="fragment"> 
+							<h5>Immutable Infrastructure </h5> 
+						</li>
+
+						<li class="fragment"> 
+							<h5>
+								Infrastucture as Code
+							</h5> 
+						</li>
+
+						<li class="fragment"> 
+							<h5>
+								Benefits of Immutable Infrastructure and IaC
+							</h5> 
+						</li>
+
+						<li class="fragment"> 
+							<h5>
+								Tools of the Modern Systems Operator
+							</h5> 
+						</li>
+
+						<li class="fragment"> 
+							<h5>
+								Demonstration with Flask, Vagrant, Docker, docker-compose and Docker Swarm
+							</h5> 
+						</li>
+
+						<li class="fragment"> 
+							<h5>
+								Other tools for the DevOps Pipeline
+							</h5> 
+
+						<li class="fragment"> 
+							<h5>
+								QA section
+							</h5> 
+						</li>
+					</ul>
+				</section>
+
+				<section>
+					<img src="images/immutable_infra.png" width="700" height="450">
+				</section>
+
+				<section>
+					<h3>
+						What is Immutable Infrastructure?
+					</h3>
+					<h5 class="fragment">
+						Immutable infrastructure is an infra paradigm in which servers and compute resources are never modified after they're deployed. If something needs to be updated, fixed, or modified in any way, new servers built from a common image with the appropriate changes are provisioned to replace the old ones.
+					</h5>
+				</section>
+
+				<section>
+					<h3>
+						Hardcore Systems Administration
+					</h3>
+					<small class="fragment">is not for the faint-of-heart</small>
+
+					<h5 class="fragment">
+						In a traditional systems administration workflow servers are continually updated and modified in place. Engineers and administrators working with this kind of infrastructure can SSH into their servers, upgrade or downgrade packages manually, tweak configuration files on a server-by-server basis, and deploy new code directly onto existing servers
+					</h5>
+				</section>
+
+				<section>
+					<h3>Issues of Mutable Infrastructure</h3>
+					<small class="fragment">serious enough to cause massive hairloss</small>
+				</section>
+
+				<section>
+					<h3>Server and computing resources sprawl</h3>
+					<img src="images/server_sprawl.png" width="700" height="450">
+				</section>
+
+				<section>
+					<h3>Configuration Drift</h3>
+					<img src="images/config_drift.png" width="700" height="450">
+				</section>
+
+				<section>
+					<h3>Snowflake Servers</h3>
+					<img src="images/snowflake_server.png" width="700" height="450">
+				</section>
+
+				<section>
+					<h3>Fragile Infrastructure</h3>
+					<img src="images/fragile_infra.png" width="700" height="450">	
+				</section>
+
+				<section>
+					<h3>ClickOps</h3>
+					<p class="fragment">
+						The act of performing systems administration and configuration by pointing and clicking on
+						UIs to spawn compute resources and manage servers
+
+						<small class="fragment"><strong>It it not scalable, and bad for your mental health too..</strong></small>
+					</p>
+
+
+				</section>
+				<section>
+					<img src="images/pets_cattle.png" width="700" height="450">
+				</section>
+
+				<section>
+					<h3>Pets</h3>
+					<ul>
+						<li>Name the VM</li>
+						<li>Tune and groom regularly</li>
+						<li>Feed pets with premium food and supplements</li>
+						<li>Take pets to the vet when they get sick</li>
+					</ul>
+				</section>
+
+				<section>
+					<h3>Cattle</h3>
+					<ul>
+						<li>Cloud instances are unique</li>
+						<li>Tune and groom the apps not the cattle</li>
+						<li>Replace when necessary</li>
+						<li>Shoot the cattle when it is sick</li>
+					</ul>
+				</section>
+
+				<section>
+					<h3>Infrastructure as Code</h3>
+					<p>
+						IaC is the approach to defining computing and network infrastructure through source code that can then be treated just like any software system   <small><strong> Martin Fowler</strong></small> 
+					</p>
+				</section>
+
+				<section>
+					<h2>IaC Practices</h2>
+				</section>
+
+				<section>
+					<h3>Use Definition Files</h3>
+					<p class="fragment">
+						all configuration is defined in executable configuration definition files, such as shell scripts, Ansible playbooks, Chef recipes, or Puppet manifests. At no time should anyone log into a server and make on-the-fly adjustments. Any such tinkering risks creating snowflake servers and configuration drift.
+					</p>
+				</section>
+
+				<section>
+					<h3>Self-documented systems and processes</h3>
+					<p class="fragment">
+						rather than instructions in documents for humans to execute with the usual level of human reliability, code is more precise and consistently executed.
+					</p>
+				</section>
+
+				<section>
+					<h3>Version all the things</h3>
+					<p class="fragment">
+						Keep all this code in source control. That way every configuration and every change is recorded for audit and to make reproducible builds to help diagnose problems. There should be only one and single "source of truth" in an infrastructure architecture.
+					</p>
+				</section>
+
+				<section>
+					<h3>Continuously test systems and processes</h3>
+					<p class="fragment">
+						tests allow computers to rapidly find many errors in infrastructure configuration. As with any modern software system, you can set up Deployment Pipelines for your infrastructure code which allows you to practice Continuous Delivery of infrastructure changes.
+					</p>
+				</section>
+
+				<section>
+					<h3>Small changes rather than batches</h3>
+					<p class="fragment">
+						the bigger the infrastructure update, the more likely it is to contain an error and the harder it is to detect that error, particularly if several errors interact. Small updates make it easier to find errors and are easier to revert
+					</p>
+				</section>
+
+				<section>
+					<h3>Keep services available continuously</h3>
+					<p class="fragment">
+						systems cannot afford downtime for upgrades or fixes. Techniques such as Rolling Updates, Blue-Green Deployment and Parallel Change can allow small updates to occur without losing availability.
+					</p>
+				</section>
+
+				<section>
+					<h3>Benefits of Immutable Infrastructure and IaC</h3>
+				</section>
+
+				<section>
+					<h4>Known-good server state and fewer deployment failures</h4>
+					<p>
+						All deployments in an immutable infrastructure are executed by provisioning new servers based on a validated and version-controlled image. As a result, these deployments don't depend on the previous state of a server, and consequently can't fail — or only partially complete — because of it.
+					</p>
+				</section>
+
+				<section>
+					<h4>No configuration drift or snowflake servers</h4>
+					<p>
+						 IM and IaC prevents complicated or hard-to-reproduce setups by eliminating the risk of snowflake servers and configuration drift. This also prevents situations where someone needs to modify a poorly-understood production server, which runs a high risk of error and causing downtime or unintended behavior.
+					</p>
+				</section>
+
+				<section>
+					<h4>Consistent staging environments and easy horizontal scaling</h4>
+					<p>
+						Because all servers use the same creation process, there are no deployment edge cases. This prevents messy or inconsistent staging environments by making it trivial to duplicate the production environment, and also simplifies horizontal scaling by seamlessly allowing you to add more identical servers to your infrastructure.
+					</p>
+				</section>
+
+				<section>
+					<h4>Simple rollback and recovery processes</h4>
+					<p>
+						Using version control to keep image history also helps with handling production issues. The same process that is used to deploy new images can also be used to roll back to older versions, adding additional resilience and reducing recovery time when handling downtime.
+					</p>
+				</section>
+
+				<section>
+					<h3>Tools of the Modern Systems Operator</h3>
+					<img src="images/devops_tools.png" width="700" height="450">
+				</section>
+
+				<section>
+					<h3>IaC Tools</h3>	
+				</section>
+
+				<section>
+					<img src="images/vagrant.png" width="700" height="450">
+				</section>
+
+				<section>
+					<img src="images/packer.png" width="700" height="450">
+				</section>
+
+				<section>
+					<img src="images/terraform.png" width="700" height="450">
+				</section>
+
+				<section>
+					<h3>Configuration Management</h3>
+				</section>
+
+				<section>
+					<img src="images/ansible.png" width="800" height="300">
+				</section>
+
+				<section>
+					<img src="images/chef.png" width="700" height="450">
+				</section>
+
+				<section>
+					<img src="images/puppet.png" width="700" height="450">
+				</section>
+
+				<section>
+					<h3>CI/CD Rockstar-on-Demand</h3>
+				</section>
+
+				<section>
+					<img src="images/jenkins.png" width="400" height="450">
+				</section>
+
+				<section>
+					<h3>Container Runtime Engine</h3>
+				</section>
+
+				<section>
+					<img src="images/docker.png" width="700" height="450">
+				</section>
+
+				<section>
+					<h3>Container Orchestration</h3>
+				</section>
+				<section>
+					<img src="images/docker_swarm.png" width="700" height="450">
+				</section>
+
+				<section>
+					<img src="images/kube.png" width="700" height="150">
+				</section>
+
+				<section>
+					<img src="images/nomad.png" width="700" height="450">
+				</section>
+
+				<section>
+					<h3>Demonstration and code</h3>
+					<img src="images/hypnosis.png" width="700" height="550">					
+				</section>
+
+				<section>
+					<img src="images/portainer.png" width="400" height="350">
+				</section>
+
+				<section>
+					<img src="images/traefik.png" width="750" height="350">
+				</section>
+
+				<section>
+					<h3>Q&A</h3>
+					<small><a href="https://bitbucket.org/hadronp/pytsada-meet-11242018">https://bitbucket.org/hadronp/pytsada-meet-11242018</a></small>
+				</section>
+
+			</div>
+		</div>
+
+		<script src="dist/reveal.js"></script>
+		<script src="plugin/notes/notes.js"></script>
+		<script src="plugin/markdown/markdown.js"></script>
+		<script src="plugin/highlight/highlight.js"></script>
+		<script>
+			// More info about initialization & config:
+			// - https://revealjs.com/initialization/
+			// - https://revealjs.com/config/
+			Reveal.initialize({
+				hash: true,
+				history: true,
+
+				// Transition style
+				transition: 'fade', // none/fade/slide/convex/concave/zoom
+				transitionSpeed: 'slow', // default/fast/slow
+				progress: true,
+
+				// Learn about plugins: https://revealjs.com/plugins/
+				plugins: [ RevealMarkdown, RevealHighlight, RevealNotes ]
+			});
+		</script>
+	</body>
+</html>
