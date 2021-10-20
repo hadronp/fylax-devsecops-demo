@@ -14,7 +14,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
       
-      
       - name: Install Trivy
         run: |
           sudo apt install rpm -y
@@ -49,6 +48,7 @@ jobs:
           IMAGE_TAG: ${{ github.sha }}
         run: |
           docker pull registry-intl.ap-southeast-1.aliyuncs.com/fatman-collider/fylax:$IMAGE_TAG
+          docker image ls
           docker run --detach --publish 5000:5000 registry-intl.ap-southeast-1.aliyuncs.com/fatman-collider/fylax:$IMAGE_TAG
-          curl http://localhost:5000
+          curl localhost:5000
 
