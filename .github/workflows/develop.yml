@@ -37,9 +37,18 @@ jobs:
       
       - name: Build and push image
         env:
-          IMAGE_TAG: ${{ github.sha::7 }}
+          IMAGE_TAG: ${{ github.sha }}
         run: |
           cd app/
           docker build -t registry-intl.ap-southeast-1.aliyuncs.com/fatman-collider/fylax:$IMAGE_TAG .
           docker push registry-intl.ap-southeast-1.aliyuncs.com/fatman-collider/fylax:$IMAGE_TAG
+          echo $IMAGE_TAG
+
+      - name: Pull and test docker image
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker pull registry-intl.ap-southeast-1.aliyuncs.com/fatman-collider/fylax:$IMAGE_TAG
+          docker run --detach --publish 5000:5000 registry-intl.ap-southeast-1.aliyuncs.com/fatman-collider/fylax:$IMAGE_TAG
+          curl http://localhost:5000
 
