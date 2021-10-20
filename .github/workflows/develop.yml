@@ -27,4 +27,18 @@ jobs:
           cd app/
           docker build -t hadronp/ubuntu-flask:dev-${GITHUB_SHA::7} .
           trivy image --severity=MEDIUM,HIGH,CRITICAL hadronp/ubuntu-flask:dev-${GITHUB_SHA::7}
+      
+      - name: Login to ACR
+        uses: aliyun/acr-login@v1
+        with:
+          login-server: https://registry-intl.ap-southeast-1.aliyuncs.com
+          username: "${{ secrets.REGISTRY_USERNAME }}"
+          password: "${{ secrets.REGISTRY_PASSWORD }}"
+      - name: Build and push image
+        env:
+          IMAGE_TAG: ${GITHUB_SHA::7}
+        run: |
+          cd app/
+          docker build -t registry-intl.ap-southeast-1.aliyuncs.com/fylax/ubuntu-flask:dev-$IMAGE_TAG .
+          docker push registry-intl.ap-southeast-1.aliyuncs.com/fylax/ubuntu-flask:dev-$IMAGE_TAG
 
