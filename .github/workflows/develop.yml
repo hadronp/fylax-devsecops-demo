@@ -35,17 +35,12 @@ jobs:
           password: "${{ secrets.REGISTRY_PASSWORD }}"
       
       - name: Build and push image
-        env:
-          IMAGE_TAG: ${{ github.sha }}
         run: |
           cd app/
           docker build -t registry-intl.ap-southeast-1.aliyuncs.com/fatman-collider/fylax:dev-${GITHUB_SHA::7} .
           docker push registry-intl.ap-southeast-1.aliyuncs.com/fatman-collider/fylax:dev-${GITHUB_SHA::7}
-          echo $IMAGE_TAG
-
+        
       - name: Pull and test docker image
-        env:
-          IMAGE_TAG: ${{ github.sha }}
         run: |
           docker pull registry-intl.ap-southeast-1.aliyuncs.com/fatman-collider/fylax:dev-${GITHUB_SHA::7}
           docker image ls
