@@ -1,0 +1,50 @@
+name: Deploy to Prod
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  trivyscan:
+    name: Running prod pipeline
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      
+      - name: Install Trivy
+        run: |
+          sudo apt install rpm -y
+          wget https://github.com/aquasecurity/trivy/releases/download/v0.19.2/trivy_0.19.2_Linux-64bit.deb
+          sudo dpkg -i trivy_0.19.2_Linux-64bit.deb
+          trivy -v
+      
+      - name: Scan project repository
+        run: |
+          cd app/
+          docker build -t hadronp/ubuntu-flask:prod-${GITHUB_SHA::7} .
+          trivy image --exit-code 1 --severity=HIGH,CRITICAL hadronp/ubuntu-flask:prod-${GITHUB_SHA::7}
+      
+      - name: Login to ACR
+        uses: aliyun/acr-login@v1
+        with:
+          login-server: https://registry-intl.ap-southeast-1.aliyuncs.com
+          username: "${{ secrets.REGISTRY_USERNAME }}"
+          password: "${{ secrets.REGISTRY_PASSWORD }}"
+      
+      - name: Build and push image
+        run: |
+          cd app/
+          docker build -t registry-intl.ap-southeast-1.aliyuncs.com/fatman-collider/fylax:prod-${GITHUB_SHA::7} .
+          docker push registry-intl.ap-southeast-1.aliyuncs.com/fatman-collider/fylax:prod-${GITHUB_SHA::7}
+        
+      - name: Pull and test docker image
+        run: |
+          docker pull registry-intl.ap-southeast-1.aliyuncs.com/fatman-collider/fylax:prod-${GITHUB_SHA::7}
+          docker image ls
+          docker run --detach --publish 5000:5000 registry-intl.ap-southeast-1.aliyuncs.com/fatman-collider/fylax:prod-${GITHUB_SHA::7}
+          docker ps -a
+          sleep 10s
+          curl http://0.0.0.0:5000
+
