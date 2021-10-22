@@ -17,15 +17,15 @@ jobs:
       - name: Install Trivy
         run: |
           sudo apt install rpm -y
-          wget https://github.com/aquasecurity/trivy/releases/download/v0.19.2/trivy_0.19.2_Linux-64bit.deb
-          sudo dpkg -i trivy_0.19.2_Linux-64bit.deb
+          wget https://github.com/aquasecurity/trivy/releases/download/v0.20.1/trivy_0.20.1_Linux-64bit.deb
+          sudo dpkg -i trivy_0.20.1_Linux-64bit.deb
           trivy -v
       
       - name: Scan project repository
         run: |
           cd app/
           docker build -t hadronp/ubuntu-flask:dev-${GITHUB_SHA::7} .
-          trivy image --severity=MEDIUM,HIGH,CRITICAL hadronp/ubuntu-flask:dev-${GITHUB_SHA::7}
+          trivy image --ignore-unfixed --severity=MEDIUM,HIGH,CRITICAL hadronp/ubuntu-flask:dev-${GITHUB_SHA::7}
       
       - name: Login to ACR
         uses: aliyun/acr-login@v1
