@@ -23,10 +23,9 @@ jobs:
       
       - name: Scan project repository
         run: |
-          
           cd app/
           docker build -t hadronp/ubuntu-flask:dev-${GITHUB_SHA::7} .
-          trivy image --severity=MEDIUM,HIGH,CRITICAL hadronp/ubuntu-flask:dev-${GITHUB_SHA::7}
+          trivy image --ignore-unfixed --severity=MEDIUM,HIGH,CRITICAL hadronp/ubuntu-flask:dev-${GITHUB_SHA::7}
       
       - name: Login to ACR
         uses: aliyun/acr-login@v1
